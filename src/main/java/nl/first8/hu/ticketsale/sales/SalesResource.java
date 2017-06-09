@@ -51,7 +51,9 @@ public class SalesResource {
         try {
             List<Ticket> tickets = service.getById(accountId);
             List<TicketDto> responseTickets = tickets.stream()
-                    .map(t -> new TicketDto(t.getConcert().getArtist(), t.getConcert().getGenre(), t.getConcert().getLocation().getName()))
+                    .map(t -> new TicketDto(t.getConcert().getArtist().getName(),
+                            t.getConcert().getArtist().getGenre().toString(),
+                            t.getConcert().getLocation().getName()))
                     .collect(Collectors.toList());
             return ResponseEntity.ok(responseTickets);
         } catch (RuntimeException e) {
@@ -59,6 +61,4 @@ public class SalesResource {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
-
-
 }

@@ -48,6 +48,16 @@ public class SalesRepository {
 
 
     }
+    public Optional<Sale> findSaleById(long saleId)
+    {
+        try {
+            return Optional.of(entityManager.createQuery("SELECT s FROM Sale s WHERE s.id =:saleId", Sale.class)
+                    .setParameter("saleId", saleId)
+                    .getSingleResult());
+        } catch (NoResultException ex) {
+            return Optional.empty();
+        }
+    }
 
     public List<Ticket> findByAccount(Account account) {
         String jpql = "SELECT ticket FROM Ticket ticket WHERE ticket.account = :account";
@@ -63,6 +73,7 @@ public class SalesRepository {
     Optional<Ticket> findById(long ticketId) {
         return Optional.ofNullable(entityManager.find(Ticket.class, ticketId));
     }
+
 
 
 }

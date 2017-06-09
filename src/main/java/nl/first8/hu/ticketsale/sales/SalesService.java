@@ -1,18 +1,17 @@
 package nl.first8.hu.ticketsale.sales;
 
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import nl.first8.hu.ticketsale.registration.Account;
 import nl.first8.hu.ticketsale.registration.RegistrationRepository;
+import nl.first8.hu.ticketsale.venue.Concert;
 import nl.first8.hu.ticketsale.venue.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import nl.first8.hu.ticketsale.venue.Concert;
 
 @Service
 public class SalesService {
@@ -20,12 +19,14 @@ public class SalesService {
     private final RegistrationRepository registrationRepository;
     private final SalesRepository salesRepository;
     private final VenueRepository venueRepository;
+    private final AuditTrailRepository auditTrailRepository;
 
     @Autowired
-    public SalesService(RegistrationRepository registrationRepository, SalesRepository salesRepository, VenueRepository venueRepository) {
+    public SalesService(RegistrationRepository registrationRepository, SalesRepository salesRepository, VenueRepository venueRepository, AuditTrailRepository auditTrailRepository) {
         this.registrationRepository = registrationRepository;
         this.salesRepository = salesRepository;
         this.venueRepository = venueRepository;
+        this.auditTrailRepository = auditTrailRepository;
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
@@ -46,6 +47,15 @@ public class SalesService {
         sale.setSellDate(timestamp);
 
         salesRepository.insert(sale);
+
+        auditSale(account, sale);
+    }
+
+    private void auditSale(Account account, Sale sale) {
+        AuditTrail auditTrail = new AuditTrail();
+        auditTrail.setSale(sale);
+        auditTrail.setAccount(account);
+        auditTrailRepository.insert(auditTrail);
     }
 
     public Optional<Sale> getSale(Long accountId, Long concertId) {

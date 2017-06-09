@@ -4,7 +4,9 @@ import nl.first8.hu.ticketsale.registration.Account;
 import nl.first8.hu.ticketsale.registration.AccountInfo;
 import nl.first8.hu.ticketsale.sales.Ticket;
 import nl.first8.hu.ticketsale.sales.TicketId;
+import nl.first8.hu.ticketsale.venue.Artist;
 import nl.first8.hu.ticketsale.venue.Concert;
+import nl.first8.hu.ticketsale.venue.Genre;
 import nl.first8.hu.ticketsale.venue.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,23 +63,22 @@ public class TestRepository {
     }
     
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Concert createDefaultConcert(String artist, String locationName) {
+    public Concert createDefaultConcert(String artistName, String locationName) {
         Location location = createLocation(locationName);
+        Artist artist = createArtist(artistName, Genre.electronic);
         Concert concert = new Concert();
         concert.setArtist(artist);
-        concert.setGenre("Grindcore");
         concert.setLocation(location);
         entityManager.persist(concert);
         return concert;
-
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Concert createConcert(String artist, String genre, String locationName) {
+    public Concert createConcert(String artistName, Genre genre, String locationName) {
         Location location = createLocation(locationName);
+        Artist artist = createArtist(artistName, genre);
         Concert concert = new Concert();
         concert.setArtist(artist);
-        concert.setGenre(genre);
         concert.setLocation(location);
         entityManager.persist(concert);
         return concert;
@@ -90,6 +91,14 @@ public class TestRepository {
         location.setName(locationName);
         entityManager.persist(location);
         return location;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Artist createArtist(String artistname, Genre genre){
+        Artist artist = new Artist();
+        artist.setName(artistname);
+        artist.setGenre(genre);
+        return entityManager.merge(artist);
     }
 
 
